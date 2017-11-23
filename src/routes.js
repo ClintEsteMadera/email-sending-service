@@ -1,45 +1,61 @@
 const nodemailer = require('nodemailer');
-const wellKnowns = require('./util/wellKnowns');
+const AWS = require('aws-sdk');
+const sesTransport = require('nodemailer-ses-transport');
 
-const createTransport = (config) => {
-        let rejectUnauthorized = (config.rejectUnauthorized !== undefined)
-                ? config.rejectUnauthorized
-                : true;
-        let useAuth = config.user !== undefined && config.pass !== undefined;
+const createTransporter = (config) => {
+	// by default, we will use SMTP
+	// TODO Change config file to hold sub-sections for SMTP and SES
+	let transport = config.useSES ? createSESTransport() : createSMTPTransport(config);
 
-        let transportConfig = {
-            host: config.host,
-            port: config.port,
-            secure: config.secure || false,
-            connectionTimeout: 5000,
-            tls: {
-                rejectUnauthorized
-            }
-        }
-        if (useAuth) {
-            transportConfig.auth = {
-                user: config.user,
-                pass: config.pass
-            }
-        }
-        return nodemailer.createTransport(transportConfig);
-}
+	return nodemailer.createTransport(transport);
+};
+
+const createSESTransport = () => {
+	// key and secret retrieval will be attempted (in order):
+	// 1. from AWS Identity and Access Management (IAM) roles for Amazon EC2 (if running on Amazon EC2)
+	// 2. from the shared credentials file (~/.aws/credentials), using the profile indicated by AWS_DEFAULT_PROFILE or "default".
+	// 3. from environment variables (default prefix: "AWS")
+	// 4. from a JSON file on disk (e.g. AWS.config.loadFromPath(<config file path>);)
+	let sesObj = new AWS.SES({
+		apiVersion: '2010-12-01',
+		region: 'us-west-2'
+	});
+	return sesTransport({ses: sesObj});
+};
+
+const createSMTPTransport = (config) => {
+	let smtpTransport = {
+		host: config.host,
+		port: config.port,
+		secure: config.secure || false,
+		connectionTimeout: 5000
+	};
+	let useAuth = config.user !== undefined && config.pass !== undefined;
+
+	if (useAuth) {
+		smtpTransport.auth = {
+			user: config.user,
+			pass: config.pass
+		}
+	}
+	return smtpTransport;
+};
 
 const sendEmail = (config, options) => {
 	return new Promise((resolve, reject) => {
-		const transporter = createTransport(config);
+		const transporter = createTransporter(config);
 		let attachments = null;
-		
+
 		if (options.attachments) {
 			try {
 				attachments = JSON.parse(options.attachments);
-				if (attachments && attachments.error)
+				if (attachments && attachments.error) {
 					return reject({success: false, status: 400, message: attachments.error});
+				}
 			} catch (e) {
 				return reject({success: false, status: 400, message: e.error});
 			}
 		}
-
 		let mailOptions = {
 			from: options.from || config.user,
 			to: options.to,
@@ -49,85 +65,13 @@ const sendEmail = (config, options) => {
 			attachments: attachments
 		};
 		transporter.sendMail(mailOptions, (error, info) => {
-		    if (error) {
-		    	return reject({success: false, status: 503, message: error.message});
-		    }
-		    return resolve({success: true, info: info});
+			if (error) {
+				return reject({success: false, status: 503, message: error.message});
+			}
+			return resolve({success: true, info: info});
 		});
 	});
-}
-
-const verifyTransport = (transports, email, pass) => {
-	transports = transports || {};
-	return new Promise((resolve, reject) => {
-		let domain = String(email).split('@')[1];
-		let domainPrefix = String(String(domain).split('.')[0]).toLowerCase();
-		let transport = transports[domain];
-
-		let wellKnownIndex = wellKnowns.indexOf(domainPrefix);
-		let wellKnown =  wellKnownIndex > -1 ? wellKnowns[wellKnownIndex] : undefined;
-
-		if (transport === undefined && wellKnown === undefined) {
-			return reject({success: false, message: 'Email domain cannot be tested.', status: 400});
-		}
-
-		let attempts = [];
-
-		if (transport !== undefined) {
-			let rejectUnauthorized = (transport.rejectUnauthorized !== undefined) 
-				? transport.rejectUnauthorized
-				: true;
-			for (let i = 0; i < transport.ports.length; ++i) {
-				let port = transport.ports[i];
-				let secure = transport.secure[i];
-				secure = (secure === undefined) ? false : secure;
-				let obj = {
-					host: transport.host,
-				    connectionTimeout: 5000,
-					port,
-					secure,
-					user: email,
-					pass,
-					tls: {rejectUnauthorized}
-				}
-				attempts.push(obj);
-			}
-		} else {
-			let obj = {
-				service: 'Yahoo',
-			    connectionTimeout: 5000,
-			    auth: {
-					user: email,
-					pass
-			    }
-			}
-			attempts.push(obj);
-		}
-
-		let success = false;
-		let messages = [];
-		function go() {
-			if (attempts.length < 1) {
-				return resolve({success, messages});
-			}
-			let next = attempts.pop();
-			const transporter = createTransport(next);
-			transporter.verify((error, data) => {
-			    if (error === undefined || error === null) {
-			    	success = true;
-			    	attempts = [];
-			    	messages.push(`${next.host}:${next.port} - success`);
-			    } else {
-			    	let message = (typeof error === 'object') ? error.message : error;
-			    	messages.push(`${next.host}:${next.port} - ${message}`);
-			    }
-		    	go();
-			});
-		}
-
-		go();
-	});
-}
+};
 
 module.exports = (app, config, ad) => {
 	app.post("/email", async (req, res) => {
@@ -135,26 +79,14 @@ module.exports = (app, config, ad) => {
 		sendEmail(config, body).then(data => {
 			res.json(data);
 		}).catch(err => {
-	    	res.status(err.status || 503);
-	    	res.send(err);
+			res.status(err.status || 503);
+			res.send(err);
 		});
 	});
 
-	app.post("/email/:email/verify", async (req, res) => {
-		const email = req.params.email;
-		const pass = req.body.pass;
-		verifyTransport(config.services, email, pass).then(data => {
-			res.json(data);
-		}).catch(err => {
-	    	res.status(err.status || 503);
-	    	res.send(err);
-		});
-	});
-
-
-	const start = new Date();
+	const startTime = new Date();
 	app.get("/status", async (req, res) => {
-		let uptime = new Date() - start;
-		res.send({online: true, uptime});
+		let upTime = new Date() - startTime;
+		res.send({online: true, uptime: upTime});
 	});
 }

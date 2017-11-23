@@ -11,7 +11,7 @@ module.exports = (args) => {
 	}
 
 	const vendor = 'MAILIT';
-	const fields = ['webPort', 'host', 'port', 'secure', 'user', 'pass', 'rejectUnauthorized'];
+	const fields = ['webPort', 'useSES', 'host', 'port', 'secure', 'user', 'pass', 'rejectUnauthorized'];
 	const required = ['host', 'port'];
 
 	fields.forEach(field => {

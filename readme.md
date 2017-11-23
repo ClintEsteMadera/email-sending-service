@@ -1,7 +1,5 @@
 # Mailit
 
-<p align="center"><img src="https://raw.githubusercontent.com/thoughtbrew/img/master/mailit.png" width=96 alt="Mailit"></p>
-
 > A tiny drop-in REST API to send emails.
 
 ---
@@ -40,14 +38,11 @@ To send attachments use the nodemailer attachments syntax.
 curl --data "to=d@me.net&subject=hi&text=hey world&attachments=[{\"filename\": \"text1.txt\",\"content\":\"Hello World!\"}]" http://127.0.0.1:3000/email
 ```
 
-
 You can browse to interactive API docs at `/api`:
 
 <p align="center"><img src="https://raw.githubusercontent.com/thoughtbrew/img/master/mailit-api.png" width=700 alt="Screenshot of API docs for Addict."></p>
 
 These docs let you add arguments, try the requests and see the results.
-
-Made with <3 by [dthree](https://github.com/dthree).
 
 ## API
 
@@ -60,43 +55,19 @@ Sends an email.
 Required:
 
  - `to:` The destination email address
- - `subject:` The re line
+ - `subject:` The re: line
  - `text:` The body of the email
 
 Optional:
 
+ - `useSES:` Whether to use Amazon Simple Email Service or not. By default, SMTP will be assumed. Usual AWS-* environment
+ variables are assumed to be present at runtime.
  - `from:` Originator
  - `html:` HTML version of the email body
 
-### POST /email/:email/verify
-
-Checks whether a given email username and password are valid. 
-
-This is an alternative to email verification in a trusted environment.
-
-#### Arguments:
-
- - `email:` The email address
- - `pass:` The password
-
-In order for this to work, you need to add a `services` section into your `config.json`, with the transport details of each domain you want to test. The `ports` and `secure` fields are given as arrays. Mailit will iterate over each option to see if it can get a connection.
-
-```js
-{
-	...
-    "services": {
-		"footest.net": {
-			"host": "smtp.footest.net",
-			"ports": [465, 587],
-			"secure": [true, true]
-		}
-    }
-}
-```
-
 ## Passing Secrets
 
-You can pass the details at runtime:
+Though it's not recommended, you can also pass the details at runtime:
 
 ```bash
 mailit --host [host] --port [smtp-port] --user [user] --pass [pass] --webPort [port]

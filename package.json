@@ -24,11 +24,12 @@
   "dependencies": {
     "body-parser": "^1.17.2",
     "express": "^4.15.3",
-    "nodemailer": "^4.0.1",
+    "nodemailer": "^4.4.0",
+    "nodemailer-ses-transport": "^1.5.1",
     "swagpi": "^0.1.1",
     "vorpal": "^1.12.0"
   },
-  "engines" : { 
-    "node" : ">=7.0.0"
+  "engines": {
+    "node": ">=7.0.0"
   }
 }

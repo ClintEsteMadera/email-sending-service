@@ -1,4 +1,5 @@
 {
+  "useSES": true,
   "host": "smtp.mailtrap.io",
   "port": 2525,
   "secure": false,
