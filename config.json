@@ -1,15 +1,15 @@
 {
-    "host": "smtp.footest.net",
-    "port": 465,
-    "secure": false,
-    "user": "noreply",
-    "pass": "FooTesters!!",
-    "rejectUnauthorized": false,
-    "services": {
-		"footest.net": {
-			"host": "smtp.footest.net",
-			"ports": [465, 587],
-			"secure": [true, true]
-		}
+  "host": "smtp.mailtrap.io",
+  "port": 2525,
+  "secure": false,
+  "user": "577a5551e722a5",
+  "pass": "0a173887650a4d",
+  "rejectUnauthorized": false,
+  "services": {
+    "mailtrap": {
+      "host": "smtp.mailtrap.io",
+      "ports": [2525],
+      "secure": [false]
     }
+  }
 }
