@@ -32,7 +32,7 @@ const sendEmail = (config, options) => {
 		
 		if (options.attachments) {
 			try {
-				let attachments = JSON.parse(options.attachments);
+				attachments = JSON.parse(options.attachments);
 				if (attachments && attachments.error)
 					return reject({success: false, status: 400, message: attachments.error});
 			} catch (e) {
