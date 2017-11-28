@@ -1,26 +1,15 @@
+const winston = require('winston');
+const config = require('../../config.json');
 
-module.exports = (args) => {
-	let config;
-
-	let configDir = process.env.MAILIT_CONFIG || args.options.config || '../config.json';
-
-	try {
-		config = require(configDir);
-	} catch(e) {
-		config = {};
-	}
-
-	const vendor = 'MAILIT';
+module.exports = () => {
+	const vendor = 'EMAIL_SENDING_SERVICE';
 	const fields = ['webPort', 'useSES', 'host', 'port', 'secure', 'user', 'pass', 'rejectUnauthorized'];
 	const required = ['host', 'port'];
 
 	fields.forEach(field => {
-		const env = `${vendor}_${field}`.toUpperCase();
-		if (process.env[env] !== undefined) {
-			config[field] = process.env[env];
-		}
-		if (args.options[field] !== undefined) {
-			config[field] = args.options[field];
+		const property = `${vendor}_${field}`.toUpperCase();
+		if (process.env[property] !== undefined) {
+			config[field] = process.env[property];
 		}
 	});
 
@@ -31,11 +20,12 @@ module.exports = (args) => {
 	if (missing.length > 0) {
 		throw new Error(`No ${missing.join(', ')} specified in config.`);
 	}
-
-	console.log('');
+	winston.log('info', '');
+	winston.log('info', 'Using:');
 	Object.keys(config).forEach(item => {
-		console.log(`  ${item}: ${config[item]}`);
+		winston.log('info', `  ${item}: ${config[item]}`);
 	});
+	winston.log('info', '');
 
 	return config;
-}
+};

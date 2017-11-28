@@ -25,25 +25,19 @@ module.exports = {
 				"html": {
 					description: 'HTML version of the email.', 
 					optional: true
+				},
+				"attachments": {
+					"type": "object",
+					"properties": {
+						"filename": {
+							"description": "filename to be reported as the name of the attached file. Use of unicode is allowed."
+						},
+						"href": {
+							"description": "an URL to the file (data uris are allowed as well)"
+						}
+					}
 				}
 			}
-		},{
-			verb: 'POST',
-			route: "/email/:email/verify",
-			title: "Verify an email",
-			description: "Verifies whether an email and password is correct.",
-			params: {
-				"email": {
-					description: 'The email address to verify.', 
-					optional: false
-				},
-			},
-			queries: {
-				"pass": {
-					description: 'The email password.', 
-					optional: false
-				}
-			},
 		}
 	]
-}
+};

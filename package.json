@@ -1,33 +1,27 @@
 {
-  "name": "mailit",
-  "version": "0.0.3",
-  "description": "Drop-in email microservice.",
+  "name": "email-sending-service",
+  "version": "0.0.1",
+  "description": "Microservice to send e-mails, supporting SMTP and Amazon SES.",
   "main": "index.js",
   "keywords": [
     "mail",
     "email",
     "smtp",
     "smtps",
-    "imap",
-    "pop3",
+    "ses",
     "mailer",
     "nodemail",
     "api",
     "microservice"
   ],
-  "author": "dthree",
-  "license": "MIT",
-  "bin": {
-    "mailit": "./bin/index.js",
-    "mailit-cli": "./bin/index.js"
-  },
+  "author": "Jonathan Chiocchio",
   "dependencies": {
     "body-parser": "^1.17.2",
     "express": "^4.15.3",
     "nodemailer": "^4.4.0",
     "nodemailer-ses-transport": "^1.5.1",
     "swagpi": "^0.1.1",
-    "vorpal": "^1.12.0"
+    "winston": "^2.4.0"
   },
   "engines": {
     "node": ">=7.0.0"

@@ -1,10 +1,10 @@
-# Mailit
+# E-Mail Sending Service
 
-> A tiny drop-in REST API to send emails.
+> A tiny REST API to send e-mails.
 
 ---
 
-Mailit is a drop-in microservice for sending emails over a REST API.
+E-Mail Sending Service is a microservice for sending emails over a REST API.
 
 First, create a config.json with your SMTP settings:
 
@@ -17,12 +17,12 @@ First, create a config.json with your SMTP settings:
 }
 ```
 
-Install the app and start it up to point at the config:
+Starting up the app is as simple as running:
 
 
 ```bash
-npm i mailit -g
-mailit --config /path/to/config.json
+npm install
+node index.js
 ```
 
 And presto, a mail endpoint! Let's try it out:
@@ -40,7 +40,7 @@ curl --data "to=d@me.net&subject=hi&text=hey world&attachments=[{\"filename\": \
 
 You can browse to interactive API docs at `/api`:
 
-<p align="center"><img src="https://raw.githubusercontent.com/thoughtbrew/img/master/mailit-api.png" width=700 alt="Screenshot of API docs for Addict."></p>
+<p align="center"><img src="https://raw.githubusercontent.com/ClintEsteMadera/email-sending-service/master/src/img/swagger-api.png" width=700 alt="API docs logo."></p>
 
 These docs let you add arguments, try the requests and see the results.
 
@@ -64,57 +64,27 @@ Optional:
  variables are assumed to be present at runtime.
  - `from:` Originator
  - `html:` HTML version of the email body
+ - `attachments`: one or more attachments, using [nodemailer's attachments syntax](https://community.nodemailer.com/using-attachments/)
 
-## Passing Secrets
-
-Though it's not recommended, you can also pass the details at runtime:
-
-```bash
-mailit --host [host] --port [smtp-port] --user [user] --pass [pass] --webPort [port]
-```
-
-Or reference the `config.json`:
+## Configuration as environment variables:
 
 ```bash
-mailit --config [path-to-config.json]
+export EMAIL_SENDING_SERVICE_WEBPORT=[web-port]
+export EMAIL_SENDING_SERVICE_USESES=[path-to-config.json]
+export EMAIL_SENDING_SERVICE_HOST=[host]
+export EMAIL_SENDING_SERVICE_PORT=[port]
+export EMAIL_SENDING_SERVICE_SECURE=[boolean]
+export EMAIL_SENDING_SERVICE_USER=[user]
+export EMAIL_SENDING_SERVICE_PASS=[pass]
+export EMAIL_SENDING_SERVICE_REJECTUNAUTHORIZED=[boolean]
 ```
-
-As environment variables:
-
-```bash
-export PORT=[web-port]
-export MAILIT_CONFIG=[path-to-config.json]
-export MAILIT_HOST=[host]
-export MAILIT_PORT=[port]
-export MAILIT_USER=[user]
-export MAILIT_PASS=[pass]
-export MAILIT_SECURE=[boolean]
-export MAILIT_REJECTUNAUTHORIZED=[boolean]
-```
-
-You can [run it from docker as well](https://hub.docker.com/r/dthree/mailit/), using environmental variables or passing it the `config.json`.
 
 ## Auth
 
-This service defaults to no authentication. I can't and won't try to guess your flavor.
+This service defaults to no authentication.
 
-Mailit uses express. The file ./middleware.js at the root of the directory exposes the app so you can add middleware hooks for auth logic.
-
-## Why?
-
- - Security. Mailit can act as a relay for a secured environment so emails can be sent. Opening a REST API over HTTP to a DMZ can be better than opening several email ports directly outbound.
-
- - Holy Wars. Instead of arguing over which language to write that SMTP relay in, we can skip it and use a REST API.
-
- - Microservices. Keep that monolith at bay.
-
- - I'll probably add more functionality later. This is what I need right now.
+E-Mail Sending Service uses Express. The file ./middleware.js at the root of the directory exposes the app so you can add middleware hooks for auth logic.
 
 ## Requirements
 
  - Node.js 7+
-
-## License
-
-MIT
-
