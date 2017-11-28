@@ -1,6 +1,12 @@
+"use strict";
+
 const nodemailer = require('nodemailer');
 const AWS = require('aws-sdk');
 const sesTransport = require('nodemailer-ses-transport');
+const remoteFileSize = require('remote-file-size');
+
+const MAX_ATTACHMENT_SIZE_IN_MB = 1;
+const MAX_ATTACHMENT_SIZE_IN_BYTES = MAX_ATTACHMENT_SIZE_IN_MB * 1024 * 1024;
 
 const createTransporter = (config) => {
 	// by default, we will use SMTP
@@ -41,6 +47,26 @@ const createSMTPTransport = (config) => {
 	return smtpTransport;
 };
 
+function validateAttachments(attachments, reject) {
+	for (let attachment of attachments) {
+		if (attachment.href) {
+			remoteFileSize(attachment.href, function (err, contentLength) {
+				if (err) {
+					let errorMsg = "Error while attempting to check attachment length: " + JSON.stringify(err);
+					return reject({success: false, status: 400, message: errorMsg});
+				}
+				if (contentLength >= MAX_ATTACHMENT_SIZE_IN_BYTES) {
+					return reject({
+						success: false,
+						status: 400,
+						message: `Attachment too big. Max. allowed size: ${MAX_ATTACHMENT_SIZE_IN_MB} MB`
+					});
+				}
+			})
+		}
+	}
+}
+
 const sendEmail = (config, options) => {
 	return new Promise((resolve, reject) => {
 		const transporter = createTransporter(config);
@@ -56,6 +82,8 @@ const sendEmail = (config, options) => {
 				return reject({success: false, status: 400, message: e.error});
 			}
 		}
+		validateAttachments(attachments, reject);
+
 		let mailOptions = {
 			from: options.from || config.user,
 			to: options.to,
@@ -73,7 +101,7 @@ const sendEmail = (config, options) => {
 	});
 };
 
-module.exports = (app, config, ad) => {
+module.exports = (app, config) => {
 	app.post("/email", async (req, res) => {
 		const body = req.body;
 		sendEmail(config, body).then(data => {
@@ -89,4 +117,4 @@ module.exports = (app, config, ad) => {
 		let upTime = new Date() - startTime;
 		res.send({online: true, uptime: upTime});
 	});
-}
+};
