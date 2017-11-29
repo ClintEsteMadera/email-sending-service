@@ -4,7 +4,7 @@ module.exports = {
 			verb: 'POST',
 			route: "/email",
 			title: "Send an email",
-			description: "Sends an email with the default SMTP settings.",
+			description: "Sends an email using the configured transport (Amazon SES or SMTP)",
 			queries: {
 				"from": {
 					description: 'Sender email address.', 
@@ -28,6 +28,7 @@ module.exports = {
 				},
 				"attachments": {
 					"type": "object",
+					"description": "an array of attachment objects.",
 					"properties": {
 						"filename": {
 							"description": "filename to be reported as the name of the attached file. Use of unicode is allowed."
