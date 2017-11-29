@@ -1,7 +1,6 @@
 'use strict';
 
 const mailTransporterCreator = require('./mail-transporter-creator');
-const remoteFileSize = require('remote-file-size');
 
 const MAX_ATTACHMENT_SIZE_IN_MB = 1;
 const MAX_ATTACHMENT_SIZE_IN_BYTES = MAX_ATTACHMENT_SIZE_IN_MB * 1024 * 1024;
@@ -42,20 +41,12 @@ const sendEmail = (config, options) => {
 
 const validateAttachments = (attachments, reject) => {
 	for (let attachment of attachments) {
-		if (attachment.href) {
-			remoteFileSize(attachment.href, function (err, contentLength) {
-				if (err) {
-					let errorMsg = "Error while attempting to check attachment length: " + JSON.stringify(err);
-					return reject({success: false, status: 400, message: errorMsg});
-				}
-				if (contentLength >= MAX_ATTACHMENT_SIZE_IN_BYTES) {
-					return reject({
-						success: false,
-						status: 400,
-						message: `Attachment too big. Max. allowed size: ${MAX_ATTACHMENT_SIZE_IN_MB} MB`
-					});
-				}
-			})
+		if (attachment.contentLength && attachment.contentLength >= MAX_ATTACHMENT_SIZE_IN_BYTES) {
+			return reject({
+				success: false,
+				status: 400,
+				message: `Attachment too big. Max. allowed size: ${MAX_ATTACHMENT_SIZE_IN_MB} MB`
+			});
 		}
 	}
 };

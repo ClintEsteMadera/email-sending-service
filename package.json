@@ -20,7 +20,6 @@
     "express": "^4.15.3",
     "nodemailer": "^4.4.0",
     "nodemailer-ses-transport": "^1.5.1",
-    "remote-file-size": "^3.0.3",
     "swagpi": "^0.1.1",
     "winston": "^2.4.0"
   },

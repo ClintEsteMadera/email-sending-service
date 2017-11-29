@@ -33,6 +33,9 @@ module.exports = {
 						"filename": {
 							"description": "filename to be reported as the name of the attached file. Use of unicode is allowed."
 						},
+						"contentLength": {
+							"description": "content length for the attachment."
+						},
 						"href": {
 							"description": "an URL to the file (data uris are allowed as well)"
 						}
