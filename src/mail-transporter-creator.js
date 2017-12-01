@@ -7,9 +7,9 @@ const sesTransport = require('nodemailer-ses-transport');
 const createTransporter = (config) => {
 	// by default, we will use SMTP
 	// TODO Change config file to hold sub-sections for SMTP and SES
-	let transport = config.useSES ? createSESTransport() : createSMTPTransport(config);
+	let transporter = config.useSES ? createSESTransport() : createSMTPTransport(config);
 
-	return nodemailer.createTransport(transport);
+	return nodemailer.createTransport(transporter);
 };
 
 const createSESTransport = () => {
