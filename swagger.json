@@ -46,8 +46,19 @@
         }
       }
     },
-    "/swagger": {
-      "x-swagger-pipe": "swagger_raw"
+    "/status": {
+      "get": {
+        "description": "Reports basic status data about the state of this microservice.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "examples": {
+              "online": true,
+              "uptime": "2 minutes"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
