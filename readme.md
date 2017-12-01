@@ -6,19 +6,7 @@
 
 E-Mail Sending Service is a microservice for sending emails over a REST API.
 
-First, create a config.json with your SMTP settings:
-
-```json
-{
-    "host": "smtp.foobar.net",
-    "port": 465,
-    "user": "noreply",
-    "pass": "foobar!"
-}
-```
-
 Starting up the app is as simple as running:
-
 
 ```bash
 npm install
@@ -28,21 +16,19 @@ node index.js
 And presto, a mail endpoint! Let's try it out:
 
 ```bash
-curl --data "to=d@me.net&subject=hi&text=hey world" http://127.0.0.1:3000/email
+curl -X POST "http://localhost:3000/email" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"from\": \"sender@mymail.com\", \"to\": \"recipient@mymail.com\", \"subject\": \"I'm sending e-mails, yo!\", \"text\": \"This is my super important e-mail!\"}"
 ```
 
-To send attachments use the nodemailer attachments syntax.
-[Link to nodemailer documents](https://community.nodemailer.com/using-attachments/)
+To send attachments, we use a subset of the [nodemailer attachments syntax](https://community.nodemailer.com/using-attachments/). Example:
 
 ```bash
-curl --data "to=d@me.net&subject=hi&text=hey world&attachments=[{\"filename\": \"text1.txt\",\"content\":\"Hello World!\"}]" http://127.0.0.1:3000/email
+curl -X POST "http://localhost:3000/email" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"from\": \"sender@mymail.com\", \"to\": \"recipient@mymail.com\", \"subject\": \"I'm sending e-mails with attachments, yo!\", \"text\": \"See attached file.\", \"attachments\": [ { \"filename\": \"README.md\", \"href\": \"https://raw.githubusercontent.com/ClintEsteMadera/email-sending-service/master/readme.md\", \"contentType\": \"application/text\", \"contentLength\": 2364 } ]}"
 ```
 
-You can browse to interactive API docs at `/api`:
+You peruse the interactive API docs and even try all the requests and see the results at `/api-docs`:
 
-<p align="center"><img src="https://raw.githubusercontent.com/ClintEsteMadera/email-sending-service/master/src/img/swagger-api.png" width=700 alt="API docs logo."></p>
-
-These docs let you add arguments, try the requests and see the results.
+<p align="center"><img src="https://raw.githubusercontent.com/ClintEsteMadera/email-sending-service/master/src/img/swagger-api.png" width=700></p>
+<p align="center"><img src="https://raw.githubusercontent.com/ClintEsteMadera/email-sending-service/master/src/img/swagger-api-2.png" width=700></p>
 
 ## API
 
@@ -52,6 +38,8 @@ Sends an email.
 
 #### Arguments:
 
+The request expects a JSON payload in the body of the POST request. The relevant parameters are:
+
 Required:
 
  - `to:` The destination email address
@@ -60,11 +48,11 @@ Required:
 
 Optional:
 
+ - `from:` Originator
+ - `html:` HTML version of the email body. If present, this parameter takes precedence over whatever is conveyed by the `text` parameter.
+ - `attachments`: one or more attachments, using a subset of the [nodemailer's attachments syntax](https://community.nodemailer.com/using-attachments/)
  - `useSES:` Whether to use Amazon Simple Email Service or not. By default, SMTP will be assumed. Usual AWS-* environment
  variables are assumed to be present at runtime.
- - `from:` Originator
- - `html:` HTML version of the email body
- - `attachments`: one or more attachments, using [nodemailer's attachments syntax](https://community.nodemailer.com/using-attachments/)
 
 ## Configuration as environment variables:
 

@@ -1,23 +1,23 @@
 const express = require('express');
+const morgan = require('morgan');
+const morganBody = require('morgan-body');
 const bodyParser = require('body-parser');
 const winston = require('winston');
-const swagpi = require('swagpi');
 
-const swagpiConfig = require('./src/swagpi.config.js');
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./swagger.json');
+
 const middleware = require('./middleware');
 const loadConfig = require('./src/util/loadConfig');
 const routes = require('./src/routes');
 
 const app = express();
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(bodyParser.json());
+app.use(bodyParser.json());		// must parse body before morganBody as body will be logged
+app.use(morgan('dev')); // TODO Change this to 'tiny' when going live
+morganBody(app);
 middleware.call(app);
-
-swagpi(app, {
-	logo: './src/img/logo.png',
-	css: 'img { width: 96px !important; margin-top: 8px !important; }',
-	config: swagpiConfig
-});
 
 try {
 	const config = loadConfig();

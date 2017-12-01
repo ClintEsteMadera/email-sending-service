@@ -4,8 +4,8 @@ const mailSender = require('./mail-sender');
 
 module.exports = (app, config) => {
 	app.post("/email", async (req, res) => {
-		const body = req.body;
-		mailSender.sendEmail(config, body).then(data => {
+		const options = req.body;
+		mailSender.sendEmail(config, options).then(data => {
 			res.json(data);
 		}).catch(err => {
 			res.status(err.status || 503);

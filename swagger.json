@@ -1,0 +1,152 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1",
+    "title": "Email Sending Service",
+    "description": "Microservice to send e-mails, supporting SMTP and Amazon SES."
+  },
+  "basePath": "/",
+  "schemes": [
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/email": {
+      "post": {
+        "description": "Sends an email using the configured transport (Amazon SES or SMTP)",
+        "parameters": [
+          {
+            "name": "payload",
+            "in": "body",
+            "description": "JSON Payload",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/EmailSendRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/EmailSendSuccessfulResponse"
+            }
+          },
+          "default": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/swagger": {
+      "x-swagger-pipe": "swagger_raw"
+    }
+  },
+  "definitions": {
+    "EmailSendRequest": {
+      "type": "object",
+      "required": true,
+      "properties": {
+        "from": {
+          "type": "string",
+          "description": "Sender email address.",
+          "required": false
+        },
+        "to": {
+          "type": "string",
+          "description": "Recipient email address(es).",
+          "required": true
+        },
+        "subject": {
+          "type": "string",
+          "description": "Email subject.",
+          "required": true
+        },
+        "text": {
+          "type": "string",
+          "description": "Text version of the email.",
+          "required": true
+        },
+        "html": {
+          "type": "string",
+          "description": "HTML version of the email.",
+          "required": false
+        },
+        "attachments": {
+          "type": "array",
+          "description": "an array of attachment objects.",
+          "required": false,
+          "items": {
+            "$ref": "#/definitions/Attachment"
+          }
+        }
+      }
+    },
+    "EmailSendSuccessfulResponse": {
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "required": true
+        },
+        "info": {
+          "type": "string",
+          "required": true
+        }
+      }
+    },
+    "ErrorResponse": {
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "description": "whether the operation was successful or not.",
+          "required": true
+        },
+        "status": {
+          "type": "integer",
+          "description": "the HTTP status code.",
+          "required": true
+        },
+        "message": {
+          "type": "string",
+          "description": "an explanatory text, informing about the nature of the error.",
+          "required": true
+        }
+      }
+    },
+    "Attachment": {
+      "description": "Properties required for specifying an attachment.",
+      "properties": {
+        "filename": {
+          "type": "string",
+          "required": true,
+          "description": "filename to be reported as the name of the attached file. Use of unicode is allowed."
+        },
+        "href": {
+          "type": "string",
+          "required": true,
+          "description": "a URL to the file (data uris are allowed as well)"
+        },
+        "contentType": {
+          "type": "string",
+          "required": false,
+          "description": "optional content type for the attachment, if not set will be derived from the filename property"
+        },
+        "contentLength": {
+          "type": "integer",
+          "required": true,
+          "description": "content length for the attachment, in bytes. Maximum attachment size is 1 MB.",
+          "minimum": 1,
+          "maximum": 1048576
+        }
+      }
+    }
+  }
+}
