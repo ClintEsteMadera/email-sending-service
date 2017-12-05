@@ -5,6 +5,7 @@ const mailTransporterCreator = require('./mail-transporter-creator');
 const MAX_ATTACHMENT_SIZE_IN_MB = 1;
 const MAX_ATTACHMENT_SIZE_IN_BYTES = MAX_ATTACHMENT_SIZE_IN_MB * 1024 * 1024;
 
+// TODO Convert to ES6 class style
 // Constructor
 function MailSender(config) {
 	this.config = config;
@@ -26,6 +27,7 @@ MailSender.prototype.sendEmail = function sendEmail(options) {
 			html: options.html,
 			attachments: options.attachments
 		};
+		// TODO Use Node's util.promisify
 		self.transporter.sendMail(mailOptions, (error, info) => {
 			if (error) {
 				// TODO try to determine the nature of the failure better, in order to report it more accurately

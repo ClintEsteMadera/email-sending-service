@@ -2,18 +2,19 @@
 
 const MailSender = require('./mail-sender');
 
-module.exports = (app, config) => {
+module.exports = async (app, config) => {
 	const startTime = new Date();
 	const mailSender = new MailSender(config);
 
 	app.post("/email", async (req, res) => {
-		const options = req.body;
-		mailSender.sendEmail(options).then(data => {
-			res.json(data);
-		}).catch(err => {
+		try {
+			const options = req.body;
+			let response = await mailSender.sendEmail(options);
+			res.json(response);
+		} catch (err) {
 			res.status(err.status || 503);
 			res.send(err);
-		});
+		}
 	});
 
 	app.get("/status", async (req, res) => {
