@@ -5,9 +5,7 @@ const AWS = require('aws-sdk');
 const sesTransport = require('nodemailer-ses-transport');
 
 const createTransporter = (config) => {
-	// by default, we will use SMTP
-	// TODO Change config file to hold sub-sections for SMTP and SES
-	let transporter = config.useSES ? createSESTransport() : createSMTPTransport(config);
+	let transporter = config.useSes ? createSESTransport() : createSMTPTransport(config);
 
 	return nodemailer.createTransport(transporter);
 };
@@ -18,26 +16,26 @@ const createSESTransport = () => {
 	// 2. from the shared credentials file (~/.aws/credentials), using the profile indicated by AWS_DEFAULT_PROFILE or "default".
 	// 3. from environment variables (default prefix: "AWS")
 	// 4. from a JSON file on disk (e.g. AWS.config.loadFromPath(<config file path>);)
+	// relevant properties are:
 	let sesObj = new AWS.SES({
-		apiVersion: '2010-12-01',
-		region: 'us-west-2'
+		apiVersion: '2010-12-01'
 	});
 	return sesTransport({ses: sesObj});
 };
 
 const createSMTPTransport = (config) => {
 	let smtpTransport = {
-		host: config.host,
-		port: config.port,
-		secure: config.secure || false,
+		host: config.smtpHost,
+		port: config.smtpPort,
+		secure: config.smtpSecure,
 		connectionTimeout: 5000
 	};
-	let useAuth = config.user !== undefined && config.pass !== undefined;
+	let useAuth = config.smtpUser !== undefined && config.smtpPass !== undefined;
 
 	if (useAuth) {
 		smtpTransport.auth = {
-			user: config.user,
-			pass: config.pass
+			user: config.smtpUser,
+			pass: config.smtpPass
 		}
 	}
 	return smtpTransport;

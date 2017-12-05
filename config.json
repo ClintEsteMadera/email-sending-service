@@ -1,9 +1,0 @@
-{
-  "useSES": true,
-  "host": "smtp.mailtrap.io",
-  "port": 2525,
-  "secure": false,
-  "user": "577a5551e722a5",
-  "pass": "0a173887650a4d",
-  "rejectUnauthorized": false
-}

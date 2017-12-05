@@ -8,8 +8,8 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
 
 const middleware = require('./middleware');
-const loadConfig = require('./src/util/loadConfig');
 const routes = require('./src/routes');
+const ConfigLoader = require('./src/config-loader');
 
 const app = express();
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
@@ -20,8 +20,8 @@ morganBody(app);
 middleware.call(app);
 
 try {
-	const config = loadConfig();
-	app.listen(config.webPort || 3000);
+	const config = new ConfigLoader().loadConfig();
+	app.listen(config.webPort);
 	routes(app, config);
 } catch(err) {
 	winston.log('error', err.message);
