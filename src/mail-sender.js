@@ -2,8 +2,7 @@
 
 const mailTransporterCreator = require('./mail-transporter-creator');
 
-const MAX_ATTACHMENT_SIZE_IN_MB = 1;
-const MAX_ATTACHMENT_SIZE_IN_BYTES = MAX_ATTACHMENT_SIZE_IN_MB * 1024 * 1024;
+const BYTES_IN_A_MEGABYTE = 1024 * 1024;
 
 class MailSender {
 	constructor(config) {
@@ -15,7 +14,7 @@ class MailSender {
 		const self = this;
 		return new Promise((resolve, reject) => {
 			if (options.attachments) {
-				MailSender._validateAttachments(options.attachments, reject);
+				self._validateAttachments(options.attachments, reject);
 			}
 
 			let mailOptions = {
@@ -37,20 +36,24 @@ class MailSender {
 		});
 	}
 
-	static _validateAttachments(attachments, reject) {
+	_validateAttachments(attachments, reject) {
 		for (let attachment of attachments) {
-			if (!attachment.contentLength) {
+			const contentLength = attachment.contentLength;
+
+			if (!contentLength || !Number.isInteger(contentLength) || contentLength <= 0) {
 				return reject({
 					success: false,
 					status: 400,
-					message: `The property "attachment.contentLength" is required.`
+					message: `The property "attachment.contentLength" is required and has to be a positive integer.`
 				});
 			}
-			if (attachment.contentLength >= MAX_ATTACHMENT_SIZE_IN_BYTES) {
+			const maxAttachmentSize = this.config.maxAttachmentSizeInMb * BYTES_IN_A_MEGABYTE;
+
+			if (attachment.contentLength > maxAttachmentSize) {
 				return reject({
 					success: false,
 					status: 400,
-					message: `The attachment is too big. Max. file size: ${MAX_ATTACHMENT_SIZE_IN_MB} MB`
+					message: `The attachment is too big. Max. file size: ${this.config.maxAttachmentSizeInMb} MB`
 				});
 			}
 		}

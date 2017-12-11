@@ -18,6 +18,7 @@ AWS_SECRET_ACCESS_KEY=[aws_secret_key]
 AWS_REGION=[aws_region]
 EMAIL_SENDING_SERVICE_WEB_PORT=[web-listening-port]
 EMAIL_SENDING_SERVICE_USE_SES=[boolean]
+EMAIL_SENDING_SERVICE_MAX_ATTACHMENT_SIZE_IN_MB=[number]
 ```
 
 Required only when using an SMTP transport:

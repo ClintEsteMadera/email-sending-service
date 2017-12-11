@@ -153,9 +153,9 @@
         "contentLength": {
           "type": "integer",
           "required": true,
-          "description": "content length for the attachment, in bytes. Maximum attachment size is 1 MB.",
+          "description": "content length for the attachment, in bytes. Maximum attachment size is 2 MB.",
           "minimum": 1,
-          "maximum": 1048576
+          "maximum": 2097152
         }
       }
     }
