@@ -37,7 +37,7 @@ EMAIL_SENDING_SERVICE_SMTP_PASS=[pass]
 Setting up and starting up the app is as simple as running:
 
 ```bash
-npm install
+yarn install
 node index.js
 ```
 
