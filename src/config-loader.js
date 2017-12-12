@@ -5,7 +5,7 @@ class ConfigLoader {
 
 	loadConfig() {
 		const prefix = 'EMAIL_SENDING_SERVICE';
-		const requiredProperties = ['WEB_PORT', 'USE_SES', 'MAX_ATTACHMENT_SIZE_IN_MB'];
+		const requiredProperties = ['WEB_PORT', 'USE_SES', 'MAX_ATTACHMENTS', 'MAX_ATTACHMENT_SIZE_IN_MB'];
 		const smtpProperties = ['SMTP_HOST', 'SMTP_PORT', 'SMTP_SECURE', 'SMTP_USER', 'SMTP_PASS'];
 		const awsProperties = ['AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_REGION'];
 		const allProperties = requiredProperties.concat(smtpProperties);

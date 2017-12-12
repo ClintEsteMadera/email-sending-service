@@ -1,8 +1,10 @@
 'use strict';
 
+const _ = require('lodash');
 const mailTransporterCreator = require('./mail-transporter-creator');
 
 const BYTES_IN_A_MEGABYTE = 1024 * 1024;
+const ATTACHMENTS_FOOTER_PREFIX = "Please see the following link(s):";
 
 class MailSender {
 	constructor(config) {
@@ -12,18 +14,20 @@ class MailSender {
 
 	sendEmail(options) {
 		const self = this;
-		return new Promise((resolve, reject) => {
-			if (options.attachments) {
-				self._validateAttachments(options.attachments, reject);
+		return new Promise(async (resolve, reject) => {
+			let postProcessedOptions;
+			try {
+				postProcessedOptions = await self._processAttachments(options);
+			} catch (err) {
+				return reject(err);
 			}
-
 			let mailOptions = {
 				from: options.from || self.config.user,
 				to: options.to,
 				subject: options.subject,
-				text: options.text,
-				html: options.html,
-				attachments: options.attachments
+				text: postProcessedOptions.text,
+				html: postProcessedOptions.html,
+				attachments: postProcessedOptions.attachments
 			};
 			// TODO Use Node 8's util.promisify
 			self.transporter.sendMail(mailOptions, (error, info) => {
@@ -36,27 +40,50 @@ class MailSender {
 		});
 	}
 
-	_validateAttachments(attachments, reject) {
-		for (let attachment of attachments) {
-			const contentLength = attachment.contentLength;
+	_processAttachments(options) {
+		return new Promise((resolve, reject) => {
 
-			if (!contentLength || !Number.isInteger(contentLength) || contentLength <= 0) {
+			const result = _.pick(options, 'text', 'html');
+			result.attachments = [];
+			const linksToOversizedAttachments = [];
+
+			const attachments = options.attachments || [];
+
+			if (!(attachments instanceof Array) || attachments.length > this.config.maxAttachments) {
 				return reject({
 					success: false,
 					status: 400,
-					message: `The property "attachment.contentLength" is required and has to be a positive integer.`
+					message: `The "attachments" option (when present) has to be an array with no more than ${this.config.maxAttachments} attachment(s).`
 				});
 			}
-			const maxAttachmentSize = this.config.maxAttachmentSizeInMb * BYTES_IN_A_MEGABYTE;
+			for (let attachment of options.attachments) {
+				const contentLength = attachment.contentLength;
 
-			if (attachment.contentLength > maxAttachmentSize) {
-				return reject({
-					success: false,
-					status: 400,
-					message: `The attachment is too big. Max. file size: ${this.config.maxAttachmentSizeInMb} MB`
-				});
+				if (!contentLength || !Number.isInteger(contentLength) || contentLength <= 0) {
+					return reject({
+						success: false,
+						status: 400,
+						message: `The option "attachment.contentLength" is required and has to be a positive integer.`
+					});
+				}
+				const maxAttachmentSize = this.config.maxAttachmentSizeInMb * BYTES_IN_A_MEGABYTE;
+
+				if (attachment.contentLength > maxAttachmentSize) {
+					linksToOversizedAttachments.push(attachment.href);
+				} else {
+					result.attachments.push(attachment);
+				}
 			}
-		}
+			if (linksToOversizedAttachments.length > 0) {
+				if (result.text) {
+					result.text += "\n\n" + ATTACHMENTS_FOOTER_PREFIX + "\n" + _.join(linksToOversizedAttachments, '\n');
+				}
+				if (result.html) {
+					result.html += "<p>" + ATTACHMENTS_FOOTER_PREFIX + "<br>" + _.join(linksToOversizedAttachments, '<br>')
+				}
+			}
+			return resolve(result);
+		});
 	}
 }
 
