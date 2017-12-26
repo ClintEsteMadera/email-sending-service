@@ -11,19 +11,19 @@ class MailSender {
 		this.attachmentsProcessor = new AttachmentsProcessor(config);
 	}
 
-	sendEmail(options) {
+	sendEmail(params) {
 		const self = this;
 		return new Promise(async (resolve, reject) => {
 			let postProcessedOptions;
 			try {
-				postProcessedOptions = await self.attachmentsProcessor.processAttachments(options);
+				postProcessedOptions = await self.attachmentsProcessor.processAttachments(params);
 			} catch (err) {
 				return reject(err);
 			}
 			let mailOptions = {
-				from: options.from || self.config.user,
-				to: options.to,
-				subject: options.subject,
+				from: params.from,
+				to: params.to,
+				subject: params.subject,
 				text: postProcessedOptions.text,
 				html: postProcessedOptions.html,
 				attachments: postProcessedOptions.attachments

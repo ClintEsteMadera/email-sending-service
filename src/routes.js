@@ -8,8 +8,8 @@ module.exports = async (app, config) => {
 
 	app.post("/email", async (req, res) => {
 		try {
-			const options = req.body;
-			let response = await mailSender.sendEmail(options);
+			const params = req.body;
+			let response = await mailSender.sendEmail(params);
 			res.json(response);
 		} catch (err) {
 			res.status(err.status || 503);

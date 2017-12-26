@@ -10,15 +10,15 @@ class AttachmentsProcessor {
 		this.config = config;
 	}
 
-	async processAttachments(options) {
+	async processAttachments(params) {
 		const self = this;
 		return new Promise((resolve, reject) => {
 
-			const result = _.pick(options, 'text', 'html');
+			const result = _.pick(params, 'text', 'html');
 			result.attachments = [];
 			const linksToOversizedAttachments = [];
 
-			const attachments = options.attachments || [];
+			const attachments = params.attachments || [];
 
 			if (!(attachments instanceof Array) || attachments.length > self.config.maxAttachments) {
 				return reject({
@@ -27,7 +27,7 @@ class AttachmentsProcessor {
 					message: `The "attachments" option (when present) has to be an array with no more than ${self.config.maxAttachments} attachment(s).`
 				});
 			}
-			for (let attachment of options.attachments) {
+			for (let attachment of params.attachments) {
 				const contentLength = attachment.contentLength;
 
 				if (!contentLength || !Number.isInteger(contentLength) || contentLength <= 0) {
