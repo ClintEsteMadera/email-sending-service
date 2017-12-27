@@ -27,7 +27,7 @@ class AttachmentsProcessor {
 					message: `The "attachments" option (when present) has to be an array with no more than ${self.config.maxAttachments} attachment(s).`
 				});
 			}
-			for (let attachment of params.attachments) {
+			for (let attachment of attachments) {
 				const contentLength = attachment.contentLength;
 
 				if (!contentLength || !Number.isInteger(contentLength) || contentLength <= 0) {

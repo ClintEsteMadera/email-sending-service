@@ -11,12 +11,17 @@ const middleware = require('./middleware');
 const routes = require('./src/routes');
 const ConfigLoader = require('./src/config-loader');
 
+const env = process.env.NODE_ENV;
+
 const app = express();
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());		// must parse body before morganBody as body will be logged
-app.use(morgan('dev')); // TODO Change this to 'tiny' when going live
-morganBody(app);
+
+if (env !== 'test') {
+	app.use(morgan(env === 'production' ? 'tiny' : 'dev'));
+	morganBody(app);
+}
 middleware.call(app);
 
 try {
@@ -29,3 +34,5 @@ try {
 }
 
 winston.log('info', 'E-Mail Sending Service has started.');
+
+module.exports = app; // for testing

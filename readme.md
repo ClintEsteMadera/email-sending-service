@@ -38,7 +38,13 @@ Setting up and starting up the app is as simple as running:
 
 ```bash
 yarn install
-node index.js
+yarn start
+```
+
+## Run tests
+
+```bash
+yarn test
 ```
 
 ## Usage Examples

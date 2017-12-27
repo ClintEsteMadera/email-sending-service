@@ -15,19 +15,31 @@
     "microservice"
   ],
   "author": "Jonathan Chiocchio",
+  "scripts": {
+    "start": "NODE_ENV=dev node index.js",
+    "test": "NODE_ENV=test mocha --timeout 5000 --exit"
+  },
+  "engines": {
+    "node": ">=8.9.1"
+  },
   "dependencies": {
-    "body-parser": "^1.17.2",
+    "body-parser": "^1.18.2",
     "camelcase": "^4.1.0",
-    "express": "^4.15.3",
+    "express": "^4.16.2",
+    "express-validation": "^1.0.2",
+    "joi": "^13.0.2",
     "lodash": "^4.17.4",
     "morgan": "^1.9.0",
     "morgan-body": "^2.0.2",
-    "nodemailer": "^4.4.0",
+    "nodemailer": "^4.4.1",
     "nodemailer-ses-transport": "^1.5.1",
-    "swagger-ui-express": "^2.0.11",
+    "request": "^2.83.0",
+    "swagger-ui-express": "^2.0.13",
     "winston": "^2.4.0"
   },
-  "engines": {
-    "node": ">=7.0.0"
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "chai-http": "^3.0.0",
+    "mocha": "^4.0.1"
   }
 }
