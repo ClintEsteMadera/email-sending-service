@@ -29,7 +29,7 @@
     "express-validation": "^1.0.2",
     "joi": "^13.0.2",
     "lodash": "^4.17.13",
-    "morgan": "^1.9.0",
+    "morgan": "^1.9.1",
     "morgan-body": "^2.0.2",
     "nodemailer": "^4.4.1",
     "nodemailer-ses-transport": "^1.5.1",
